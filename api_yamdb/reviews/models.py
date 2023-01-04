@@ -60,6 +60,13 @@ class Title(models.Model):
         related_name='category',
         verbose_name='Категория',
     )
+    genre = models.ManyToManyField(
+        Genre,
+        through='GenreTitle',
+        blank=True,
+        related_name='genres',
+        verbose_name='Жанр',
+    )
 
     class Meta:
         ordering = ('name',)
@@ -71,8 +78,19 @@ class Title(models.Model):
 
 
 class GenreTitle(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        related_name='titles'
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='genres'
+    )
+
+    class Meta:
+        unique_together = ('title', 'genre')
 
     def __str__(self):
-        return f'{self.title} {self.genre}'
+        return f'{self.title} Жанр: {self.genre}'
