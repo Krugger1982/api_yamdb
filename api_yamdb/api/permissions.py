@@ -1,13 +1,7 @@
 from rest_framework import permissions
 
 
-class ReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS
-
-
-class IsAuthorOrReadOnly(permissions.BasePermission):
+class IsModeratorOrAuthorOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return (
@@ -16,16 +10,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         )
 
     def has_object_permission(self, request, view, obj):
-        return obj.owner == request.user
-
-
-class IsModeratorOrReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
         return (
-            request.method in permissions.SAFE_METHODS
-            or request.user.role == 'Moderator'
+            request.user.role == 'Moderator'
+            or obj.owner == request.user
         )
-
-    def has_object_permission(self, request, view, obj):
-        return request.user.role == 'Moderator'
