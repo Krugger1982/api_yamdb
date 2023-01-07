@@ -22,7 +22,7 @@ api_yamdb
 
 Для того чтоб установить проект на локальную машину клонируйте репозиторий  
 ```
-git clone https://github.com/Krugger1982/
+git clone https://github.com/Krugger1982/api_yamdb/
 ```
 
 ### Запуск
