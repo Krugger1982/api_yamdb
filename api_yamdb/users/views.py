@@ -33,7 +33,7 @@ def createuser(request):
         send_mail(
             subject='Ваш код подтверждения',
             message=(
-                f'Отправьте этот код для получения токена {new_user.confirmation_code}'
+                f'Код для получения токена {new_user.confirmation_code}'
             ),
             from_email='administration@example.com',
             recipient_list=[new_user.email, ],
