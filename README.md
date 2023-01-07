@@ -47,12 +47,11 @@ $ python3 -m venv venv
 
 `api/v1/signup/`                    
     
-    (POST): передаём username и email, получаем код подтверждения
-                                    на электронную почту (доступно без токена).
+    (POST): передаём username и email, получаем код подтвержденияна электронную почту (доступно без токена).
 
-`api/v1/token/`                     
-    (POST): передаём username и confirmation_code (полученный на  
-                                    электронную почту), получаем токен (доступно без токена)
+`api/v1/token/`           
+
+    (POST): передаём username и confirmation_code, получаем токен (доступно без токена)
 
 `api/v1/categories/`                
     
