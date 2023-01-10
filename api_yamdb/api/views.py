@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 
+from .permissions import IsModeratorOrAuthorOrReadOnly
 from reviews.models import Comments, Reviews, Title
 from .serializers import CommentsSerializer, ReviewsSerializer
 
@@ -8,6 +9,7 @@ from .serializers import CommentsSerializer, ReviewsSerializer
 class ReviewsViewset(viewsets.ModelViewSet):
     queryset = Reviews.objects.all()
     serializer_class = ReviewsSerializer
+    permission_classes = [IsModeratorOrAuthorOrReadOnly]
 
     def _get_post(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -22,6 +24,7 @@ class ReviewsViewset(viewsets.ModelViewSet):
 class CommentsViewset(viewsets.ModelViewSet):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
+    permission_classes = [IsModeratorOrAuthorOrReadOnly]
 
     def _get_post(self):
         return get_object_or_404(Reviews, pk=self.kwargs.get('review_id'))
