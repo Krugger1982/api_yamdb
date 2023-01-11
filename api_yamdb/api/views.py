@@ -1,16 +1,21 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
 from rest_framework.permissions import AllowAny
 
-from reviews.models import Category, Title, Genre
+from .pagination import CommonPagination
+from reviews.models import (Category,
+                            Title,
+                            Genre,
+                            Review,
+                            Title
+                            )
 from .serializers import (
     TitleSerializer,
     CategorySerializer,
     GenreSerializer,
+    CommentSerializer,
+    ReviewSerializer
 )
-
-
-class UsersViewSet(viewsets.ModelViewSet):
-    pass
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -40,8 +45,28 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    pass
+    serializer_class = ReviewSerializer
+    filter_backends = (filters.OrderingFilter,)
+
+    def _get_post(self):
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+
+    def get_queryset(self):
+        return self._get_post().reviews
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, title=self._get_post())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    pass
+    serializer_class = CommentSerializer
+    pagination_class = CommonPagination
+
+    def _get_post(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+
+    def get_queryset(self):
+        return self._get_post().comments
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, reviews=self._get_post())
