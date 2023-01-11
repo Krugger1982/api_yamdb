@@ -5,6 +5,7 @@ from rest_framework.authtoken import views
 
 from api.views import CommentViewSet, ReviewViewSet
 
+
 router_v1 = routers.DefaultRouter()
 router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews',
@@ -17,5 +18,4 @@ router_v1.register(
 
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
-    path('v1/api-token-auth/', views.obtain_auth_token),
 ]
