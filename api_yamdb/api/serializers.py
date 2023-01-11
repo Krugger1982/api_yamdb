@@ -2,14 +2,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import Comments, Reviews
+from reviews.models import Comment, Review
 
 
-class ReviewsSerializer(serializers.ModelSerializer):
+class ReviewSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
-        model = Reviews
+        model = Review
         fields = '__all__'
         read_only_fields = ('title',)
 
@@ -32,10 +32,10 @@ class ReviewsSerializer(serializers.ModelSerializer):
         return value
 
 
-class CommentsSerializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
-        model = Comments
+        model = Comment
         fields = '__all__'
         read_only_fields = ('review',)

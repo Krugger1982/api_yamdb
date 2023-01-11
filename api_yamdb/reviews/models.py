@@ -5,7 +5,7 @@ from django.db import models
 User = get_user_model()
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -38,9 +38,9 @@ class Reviews(models.Model):
         return self.text[:15]
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     review = models.ForeignKey(
-        Reviews, on_delete=models.CASCADE,
+        Review, on_delete=models.CASCADE,
         related_name='comments'
     )
     text = models.TextField(verbose_name='Текст комментария')

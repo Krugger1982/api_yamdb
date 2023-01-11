@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, viewsets
 
-from reviews.models import Reviews, Title
+from reviews.models import Review, Title
 from .pagination import CommonPagination
-from .serializers import CommentsSerializer, ReviewsSerializer
+from .serializers import CommentSerializer, ReviewSerializer
 
 
-class ReviewsViewset(viewsets.ModelViewSet):
-    serializer_class = ReviewsSerializer
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
     filter_backends = (filters.OrderingFilter,)
 
     def _get_post(self):
@@ -20,12 +20,12 @@ class ReviewsViewset(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, title=self._get_post())
 
 
-class CommentsViewset(viewsets.ModelViewSet):
-    serializer_class = CommentsSerializer
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
     pagination_class = CommonPagination
 
     def _get_post(self):
-        return get_object_or_404(Reviews, pk=self.kwargs.get('review_id'))
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
 
     def get_queryset(self):
         return self._get_post().comments
