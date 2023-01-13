@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
@@ -25,13 +26,22 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(required=False, many=True)
-    category = CategorySerializer()
+    name = serializers.CharField(required=True, max_length=255)
+    year = serializers.IntegerField(required=True)
+    genre = GenreSerializer(required=True, many=True)
+    category = CategorySerializer(required=True, many=False)
 
     class Meta:
-        fields = ('id', 'name', 'year',
-                  'description', 'category', 'genre')
+        fields = ('name', 'year',
+                  'description', 'genre', 'category')
         model = Title
+
+    def validate_year(self, value):
+        if value > datetime.datetime.now().year:
+            raise serializers.ValidationError(
+                "Год создания не может быть в будущем"
+            )
+        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):
