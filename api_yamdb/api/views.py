@@ -1,9 +1,47 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, viewsets
+from rest_framework import viewsets, filters
+from rest_framework.permissions import AllowAny
 
-from reviews.models import Review, Title
 from .pagination import CommonPagination
-from .serializers import CommentSerializer, ReviewSerializer
+from reviews.models import (Category,
+                            Title,
+                            Genre,
+                            Review,
+                            Title
+                            )
+from .serializers import (
+    TitleSerializer,
+    CategorySerializer,
+    GenreSerializer,
+    CommentSerializer,
+    ReviewSerializer
+)
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    http_method_names = ["get", "post", "patch", "delete"]
+    serializer_class = TitleSerializer
+    permission_classes = [AllowAny]
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    http_method_names = ["get", "post", "delete"]
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    lookup_field = 'slug'
+    search_fields = ('name', )
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    http_method_names = ["get", "post", "delete"]
+    serializer_class = GenreSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('name', )
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

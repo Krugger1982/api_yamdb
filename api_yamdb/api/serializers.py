@@ -2,7 +2,36 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import Comment, Review
+from reviews.models import (Title,
+                            Category,
+                            Genre,
+                            Comment,
+                            Review,
+                            )
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(required=False, many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        fields = ('id', 'name', 'year',
+                  'description', 'category', 'genre')
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
