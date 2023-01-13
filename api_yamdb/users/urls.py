@@ -1,15 +1,17 @@
-from rest_framework_simplejwt.views import TokenObtainPairView
-from django.urls import path
-from .views import createuser
+from django.urls import path, include
+from rest_framework import routers
 
+from .views import createuser, registration, UsersViewSet, ProfileView
 
 app_name = 'users'
 
+router_v1 = routers.DefaultRouter()
+router_v1.register('users', UsersViewSet, basename='users')
+
+
 urlpatterns = [
     path('v1/auth/signup/', createuser, name='signup'),
-    path(
-        'v1/auth/token/',
-        TokenObtainPairView.as_view(),
-        name='token_obtain_pair'
-    ),
+    path('v1/auth/token/', registration, name='registration'),
+    path('v1/users/me/', ProfileView.as_view(), name='profile'),
+    path('v1/', include(router_v1.urls)),
 ]
