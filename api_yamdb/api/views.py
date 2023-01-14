@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django_filters import rest_framework as filter_backend
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -21,14 +22,37 @@ from .serializers import (
 )
 
 
+class TitleFilter(filter_backend.FilterSet):
+    category = filter_backend.CharFilter(
+        field_name='category__slug',
+        lookup_expr='icontains'
+    )
+    genre = filter_backend.CharFilter(
+        field_name='genre__slug',
+        lookup_expr='icontains'
+    )
+    name = filter_backend.CharFilter(
+        field_name='name',
+        lookup_expr='icontains'
+    )
+
+    class Meta:
+        model = Title
+        fields = ('category', 'genre', 'year')
+
+
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     http_method_names = ["get", "post", "patch", "delete"]
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination
-    filter_backends = [filters.SearchFilter]
+    filter_backends = (
+        filter_backend.DjangoFilterBackend,
+        filters.SearchFilter
+    )
     search_fields = ('genre__slug', )
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH',):
