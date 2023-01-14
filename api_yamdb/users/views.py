@@ -22,10 +22,21 @@ from .serializers import (
 )
 
 
-def generate_creation_code(username):
+def generate_creation_code_and_mail(user):
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     secret_key = get_random_string(20, chars)
-    return hashlib.sha256((secret_key + username).encode('utf-8')).hexdigest()
+    user.confirmation_code = hashlib.sha256(
+        (secret_key + user.username).encode('utf-8')
+    ).hexdigest()
+    send_mail(
+        subject='Ваш код подтверждения',
+        message=(
+            f'Код для получения токена {user.confirmation_code}'
+        ),
+        from_email='administration@example.com',
+        recipient_list=[user.email, ],
+        fail_silently=False,
+    )
 
 
 @api_view(['POST'])
@@ -34,29 +45,28 @@ def createuser(request):
     """ Создание нового пользователя и отправка confirmation code на email,
         указанный при создании.
     """
-    serializer = UserCreationSerializer(data=request.data)
-    # Если в запросе переданы правильные значения полей,
-    # создается (берется из базы) пользователь
-    serializer.is_valid(raise_exception=True)
-    # значение параметра raise_exception=True автоматически сгенерит
-    # ответ с кодом 400 и инфой об ошибке, если поля не прошли валидацию
-    try:
-        new_user = User.objects.get_or_create(**serializer.validated_data)[0]
-    except IntegrityError:
-        return Response('Такой пользователь или емэйл уже существуют')
-
-    new_user.confirmation_code = generate_creation_code(new_user.username)
-    new_user.save()
-    send_mail(
-        subject='Ваш код подтверждения',
-        message=(
-            f'Код для получения токена {new_user.confirmation_code}'
-        ),
-        from_email='administration@example.com',
-        recipient_list=[new_user.email, ],
-        fail_silently=False,
-    )
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    username = request.data.get('username')
+    email = request.data.get('email')
+    if not User.objects.filter(username=username, email=email).exists():
+        # если пользователя с совпадением по ДВУМ полям не существует
+        # то попытаемся его создать
+        serializer = UserCreationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = User.objects.create(**serializer.validated_data)
+        except IntegrityError:
+            return Response(
+                'Такой пользователь или емэйл уже существуют',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        response_data = serializer.validated_data
+    else:
+        # а если такой уже есть, то берем его из БД
+        user = User.objects.get(username=username)
+        response_data = request.data
+    # создаем, сохраняем и отправляем пользователю код подтверждения
+    generate_creation_code_and_mail(user)
+    return Response(response_data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

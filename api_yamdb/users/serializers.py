@@ -22,20 +22,6 @@ class UserCreationSerializer(serializers.ModelSerializer):
             )
         return value
 
-# def validate(self, data):
-    #     user_username = User.objects.filter(username=data['username'])
-    #     user_email = User.objects.filter(email=data['email'])
-    #     if user_username != user_email:
-    #         # Если по отдельности существует такой username с другим емэйлом
-    #         #  или на такой email зарегистрирован другой username
-    #         raise serializers.ValidationError(
-    #             'Пользователь с таким адресом  уже существует.',
-    #             'Отправьте имеющийся у вас код подтверждения'
-    #         )
-    #         # в случае, если пользователь с такими (обоими!)полями существует
-    #         # или в обоих переменных пустой список - проверка будет пройдена
-    #     return data
-
 
 class RegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)

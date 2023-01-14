@@ -26,5 +26,8 @@ class User(AbstractUser):
     def is_moderator(self):
         return self.role == self.MODERATOR or self.is_admin
 
+    class Meta:
+        ordering = ['username']
+
     def __str__(self):
         return self.username
