@@ -20,6 +20,7 @@ from .serializers import (
     CommentSerializer,
     ReviewSerializer
 )
+from .filters import TitleFilter
 
 
 class TitleFilter(filter_backend.FilterSet):
@@ -47,11 +48,14 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination
+<<<<<<< HEAD
     filter_backends = (
         filter_backend.DjangoFilterBackend,
         filters.SearchFilter
     )
     search_fields = ('genre__slug', )
+=======
+>>>>>>> 29ee55bf08ca393355cafa1748d90a92570b891d
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
