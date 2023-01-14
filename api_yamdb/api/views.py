@@ -12,6 +12,7 @@ from reviews.models import (Category,
                             )
 from .serializers import (
     TitleSerializer,
+    TitleCreateSerializer,
     CategorySerializer,
     GenreSerializer,
     CommentSerializer,
@@ -25,6 +26,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH',):
+            return TitleCreateSerializer
+        return TitleSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

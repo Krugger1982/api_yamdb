@@ -7,9 +7,9 @@ from reviews.models import (
     Genre,
     GenreTitle,
     Title,
-    # User,
-    # Reviews,
-    # Comments
+    User,
+    Review,
+    Comment
 )
 
 
@@ -18,9 +18,9 @@ dict_model = {
     'genre': Genre,
     'title': Title,
     'genretitle': GenreTitle,
-    # 'users': User,
-    # 'review': Reviews,
-    # 'comment': Comments
+    'users': User,
+    'review': Review,
+    'comment': Comment
 }
 
 

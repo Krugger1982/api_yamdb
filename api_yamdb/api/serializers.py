@@ -26,22 +26,27 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(required=True, max_length=255)
-    year = serializers.IntegerField(required=True)
     genre = GenreSerializer(required=True, many=True)
-    category = CategorySerializer(required=True, many=False)
+    category = CategorySerializer(required=True)
 
     class Meta:
-        fields = ('name', 'year',
-                  'description', 'genre', 'category')
+        fields = '__all__'
         model = Title
 
-    def validate_year(self, value):
-        if value > datetime.datetime.now().year:
-            raise serializers.ValidationError(
-                "Год создания не может быть в будущем"
-            )
-        return value
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all(),
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Genre.objects.all(), many=True
+    )
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category'
+        )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -62,13 +67,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                 'Можно оставить только один отзыв.'
             )
         return data
-
-    def validate_score(self, value):
-        if value < 1 or value > 10:
-            raise serializers.ValidationError(
-                'Недопустимое значение.'
-            )
-        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
