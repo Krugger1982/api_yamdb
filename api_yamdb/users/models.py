@@ -18,5 +18,13 @@ class User(AbstractUser):
     password = models.CharField(max_length=128, blank=True)
     confirmation_code = models.CharField(max_length=100, blank=True)
 
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN or self.is_superuser
+
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR or self.is_admin
+
     def __str__(self):
         return self.username

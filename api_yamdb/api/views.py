@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .pagination import CommonPagination
 from .permissions import IsAdminOrReadOnly, IsModeratorOrAuthorOrReadOnly
@@ -66,13 +67,14 @@ class GenreViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     filter_backends = (filters.OrderingFilter,)
-    permission_classes = [IsModeratorOrAuthorOrReadOnly]
+    permission_classes = [IsModeratorOrAuthorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
 
     def _get_post(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
     def get_queryset(self):
-        return self._get_post().reviews
+        return self._get_post().reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self._get_post())
@@ -81,13 +83,14 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = CommonPagination
-    permission_classes = [IsModeratorOrAuthorOrReadOnly]
+    permission_classes = [IsModeratorOrAuthorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
 
     def _get_post(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
 
     def get_queryset(self):
-        return self._get_post().comments
+        return self._get_post().comments.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, reviews=self._get_post())
