@@ -27,6 +27,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ('genre__slug', )
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH',):
@@ -67,6 +69,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     filter_backends = (filters.OrderingFilter,)
+    pagination_class = CommonPagination
     permission_classes = [IsModeratorOrAuthorOrReadOnly,
                           IsAuthenticatedOrReadOnly]
 

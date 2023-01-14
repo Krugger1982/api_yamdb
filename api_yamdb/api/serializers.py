@@ -1,6 +1,6 @@
-import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from statistics import mean
 from rest_framework.relations import SlugRelatedField
 
 from reviews.models import (Title,
@@ -28,10 +28,21 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(required=True, many=True)
     category = CategorySerializer(required=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category', 'rating'
+        )
         model = Title
+
+    def get_rating(self, obj):
+        data = obj.reviews.all().values_list('score', flat=True)
+        if data:
+            ratings = round(mean(data))
+            return ratings
+        else:
+            return
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
@@ -51,8 +62,7 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
-    score = serializers.IntegerField(min_value=1, max_value=10)
-    
+
     class Meta:
         model = Review
         fields = '__all__'
