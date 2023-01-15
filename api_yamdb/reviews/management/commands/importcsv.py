@@ -1,6 +1,6 @@
-from django.core.management.base import BaseCommand
 import csv
 from datetime import datetime
+from django.core.management.base import BaseCommand
 
 from reviews.models import (
     Category,

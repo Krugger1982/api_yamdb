@@ -1,14 +1,10 @@
+from statistics import mean
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from statistics import mean
 from rest_framework.relations import SlugRelatedField
 
-from reviews.models import (Title,
-                            Category,
-                            Genre,
-                            Comment,
-                            Review,
-                            )
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
