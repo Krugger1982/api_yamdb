@@ -1,19 +1,11 @@
-from django.core.management import BaseCommand, CommandError
-from django.db.utils import IntegrityError
 import csv
 from datetime import datetime
-from django.core.management.base import BaseCommand
 
-from reviews.models import (
-    Category,
-    Genre,
-    GenreTitle,
-    Title,
-    User,
-    Review,
-    Comment
-)
+from django.core.management import BaseCommand, CommandError
+from django.db.utils import IntegrityError
 
+from reviews.models import (Category, Comment, Genre, GenreTitle, Review,
+                            Title, User)
 
 dict_model = {
     'category': Category,

@@ -3,23 +3,18 @@ from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
-from rest_framework import permissions
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
 
 from api.pagination import CommonPagination
 from .models import User
 from .permissions import UserRoleIsAdmin, IsAdminOrProfileOwner
-from .serializers import (
-    RegistrationSerializer,
-    UserCreationSerializer,
-    UserSerializer,
-    ProfileSerializer,
-)
+from .serializers import (RegistrationSerializer, UserCreationSerializer,
+                          UserSerializer, ProfileSerializer)
 
 
 def generate_creation_code_and_mail(user):
