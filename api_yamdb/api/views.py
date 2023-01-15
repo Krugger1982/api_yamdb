@@ -1,6 +1,11 @@
 from django.shortcuts import get_object_or_404
+<<<<<<< HEAD
 from django_filters import rest_framework as filter_backend
 from rest_framework import filters, status, viewsets
+=======
+from rest_framework import viewsets, filters, status
+from rest_framework.response import Response
+>>>>>>> e8a486df5ff9af04395fc9353e6134c8e5a522da
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
@@ -11,25 +16,6 @@ from .permissions import IsAdminOrReadOnly, IsModeratorOrAuthorOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
                           TitleCreateSerializer, TitleSerializer)
-
-
-class TitleFilter(filter_backend.FilterSet):
-    category = filter_backend.CharFilter(
-        field_name='category__slug',
-        lookup_expr='icontains'
-    )
-    genre = filter_backend.CharFilter(
-        field_name='genre__slug',
-        lookup_expr='icontains'
-    )
-    name = filter_backend.CharFilter(
-        field_name='name',
-        lookup_expr='icontains'
-    )
-
-    class Meta:
-        model = Title
-        fields = ('category', 'genre', 'year')
 
 
 class TitleViewSet(viewsets.ModelViewSet):

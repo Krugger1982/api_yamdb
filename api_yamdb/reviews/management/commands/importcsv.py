@@ -1,3 +1,5 @@
+from django.core.management import BaseCommand, CommandError
+from django.db.utils import IntegrityError
 import csv
 from datetime import datetime
 from django.core.management.base import BaseCommand
@@ -18,8 +20,8 @@ dict_model = {
     'genre': Genre,
     'title': Title,
     'genretitle': GenreTitle,
-    'users': User,
-    'review': Review,
+    'user': User,
+    'reviews': Review,
     'comment': Comment
 }
 
@@ -43,10 +45,11 @@ class Command(BaseCommand):
                 value = date
             else:
                 for name_model in dict_model.keys():
-                    if key.startswith(name_model):
+                    if key.startswith(name_model[:-1]) and key != 'username':
                         id_model = dict_model[name_model]
                         value = id_model.objects.get(pk=value)
                         key = name_model
+                        break
             new_dict[key] = value
         return new_dict
 
@@ -59,5 +62,13 @@ class Command(BaseCommand):
                     for row in csv.DictReader(csv_file):
                         data = self.__get_dict_object(row)
                         model.objects.create(**data)
+        except IntegrityError:
+            raise CommandError(
+                'База данных заполнена')
+        except FileNotFoundError:
+            raise CommandError(
+                f'Файл {file_path} не найден')
         except Exception:
-            print('Не существующая модель')
+            raise CommandError(
+                'Ошибка выполнения importcsv'
+            )
