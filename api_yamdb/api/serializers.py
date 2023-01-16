@@ -39,9 +39,7 @@ class TitleSerializer(serializers.ModelSerializer):
     def get_rating(self, obj):
         """ Возвращает среднее значение рейтинга всех отзывов к произведению.
             Если оценок нет, вернет None"""
-        average_rating = obj.reviews.aggregate(Avg('score'))['score__avg']
-        if average_rating:
-            return round(average_rating)
+        return obj.reviews.aggregate(Avg('score'))['score__avg']
 
     def validate_year(self, value):
         if value < 1900 or value > current_year():
