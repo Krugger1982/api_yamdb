@@ -111,11 +111,4 @@ class ProfileSerializer(serializers.ModelSerializer):
         return username_validation(value)
 
     def validate_email(self, value):
-<<<<<<< HEAD
         return email_validation(value)
-=======
-        """функция нормализует значение поля, приводя его к нижнему регистру
-        """
-        return value.lower()
-
->>>>>>> f5fe52ac7d1ae0d045e721b3129d4526294e8f6c
