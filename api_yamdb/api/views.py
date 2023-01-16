@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
 from .pagination import CommonPagination
@@ -28,6 +29,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                       mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Category.objects.all()
+
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination

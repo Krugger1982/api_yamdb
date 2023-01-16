@@ -50,6 +50,7 @@ def createuser(request):
         serializer = UserCreationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = User.objects.create(**serializer.validated_data)
+
         response_data = serializer.validated_data
     else:
         # а если такой уже есть, то берем его из БД

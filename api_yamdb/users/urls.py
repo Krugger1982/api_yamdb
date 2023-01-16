@@ -3,6 +3,7 @@ from rest_framework import routers
 
 from .views import createuser, registration, UsersViewSet
 
+
 app_name = 'users'
 
 router_v1 = routers.DefaultRouter()
