@@ -1,15 +1,15 @@
 import datetime
 
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.db import models
-from rest_framework import serializers
 
 from users.models import User
 
 
-def validate_year(self, value):
-    if value < 1900 or value > datetime.date.today().year():
-        raise serializers.ValidationError
+def validate_year(value):
+    if value < 1900 or value > datetime.date.today().year:
+        raise ValidationError
     return value
 
 
