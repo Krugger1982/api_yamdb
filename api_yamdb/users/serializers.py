@@ -112,3 +112,4 @@ class ProfileSerializer(serializers.ModelSerializer):
         """функция нормализует значение поля, приводя его к нижнему регистру
         """
         return value.lower()
+
