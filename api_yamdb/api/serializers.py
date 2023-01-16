@@ -1,14 +1,8 @@
-import datetime
-
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from reviews.models import Category, Comment, Genre, Review, Title
-
-
-def current_year():
-    return datetime.date.today().year
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -40,11 +34,6 @@ class TitleSerializer(serializers.ModelSerializer):
         """ Возвращает среднее значение рейтинга всех отзывов к произведению.
             Если оценок нет, вернет None"""
         return obj.reviews.aggregate(Avg('score'))['score__avg']
-
-    def validate_year(self, value):
-        if value < 1900 or value > current_year():
-            raise serializers.ValidationError
-        return value
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):

@@ -1,6 +1,16 @@
+import datetime
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from rest_framework import serializers
+
 from users.models import User
+
+
+def validate_year(self, value):
+    if value < 1900 or value > datetime.date.today().year():
+        raise serializers.ValidationError
+    return value
 
 
 class Category(models.Model):
@@ -40,7 +50,8 @@ class Title(models.Model):
         max_length=255,
         verbose_name='Название'
     )
-    year = models.PositiveSmallIntegerField(verbose_name='Год')
+    year = models.PositiveSmallIntegerField(
+        verbose_name='Год', validators=[validate_year])
 
     description = models.TextField(
         null=True,
