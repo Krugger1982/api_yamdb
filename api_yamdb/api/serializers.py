@@ -1,9 +1,14 @@
-from statistics import mean
+import datetime
 
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from reviews.models import Category, Comment, Genre, Review, Title
+
+
+def current_year():
+    return datetime.date.today().year
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -32,12 +37,16 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
     def get_rating(self, obj):
-        data = obj.reviews.all().values_list('score', flat=True)
-        if data:
-            ratings = round(mean(data))
-            return ratings
-        else:
-            return
+        """ Возвращает среднее значение рейтинга всех отзывов к произведению.
+            Если оценок нет, вернет None"""
+        average_rating = obj.reviews.aggregate(Avg('score'))['score__avg']
+        if average_rating:
+            return round(average_rating)
+
+    def validate_year(self, value):
+        if value < 1900 or value > current_year():
+            raise serializers.ValidationError
+        return value
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):

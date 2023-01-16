@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, filters, status
-from rest_framework.response import Response
+from rest_framework import filters, mixins, viewsets
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
+
 
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
@@ -27,9 +26,10 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleSerializer
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Category.objects.all()
-    http_method_names = ["get", "post", "delete"]
+
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination
@@ -37,24 +37,16 @@ class CategoryViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     search_fields = ('name', )
 
-    def retrieve(self, request, *args, **kwargs):
-        response = {'message': 'Метод GET для объекта не разрешен!'}
-        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                   mixins.DestroyModelMixin, viewsets.GenericViewSet):
     queryset = Genre.objects.all()
-    http_method_names = ["get", "post", "delete"]
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = CommonPagination
     filter_backends = [filters.SearchFilter]
     lookup_field = 'slug'
     search_fields = ('name', )
-
-    def retrieve(self, request, *args, **kwargs):
-        response = {'message': 'Метод GET для объекта не разрешен!'}
-        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
