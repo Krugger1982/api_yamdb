@@ -9,14 +9,15 @@ def username_validation(value):
     """Валидация и нормализация username
         (приведение его к нижнему регистру)
     """
+    value = value.lower()
     if value == 'me':
         raise serializers.ValidationError(
-            "Имя 'me' использовать как username запрещено!"
+            "Имя 'me' (а также 'Ме', 'МЕ' или 'mE') использовать запрещено!"
         )
-    return value.lower()
+    return value
 
 
-def email_validation(value):
+def email_normalization(value):
     """функция нормализует значение поля, приводя его к нижнему регистру
     Теперь поле email стало регистронезависимым """
     return value.lower()
@@ -41,7 +42,7 @@ class UserCreationSerializer(serializers.ModelSerializer):
         return username_validation(value)
 
     def validate_email(self, value):
-        return email_validation(value)
+        return email_normalization(value)
 
 
 class CheckTokenSerializer(serializers.ModelSerializer):
@@ -90,7 +91,7 @@ class UserSerializer(serializers.ModelSerializer):
         return username_validation(value)
 
     def validate_email(self, value):
-        return email_validation(value)
+        return email_normalization(value)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -111,4 +112,4 @@ class ProfileSerializer(serializers.ModelSerializer):
         return username_validation(value)
 
     def validate_email(self, value):
-        return email_validation(value)
+        return email_normalization(value)
