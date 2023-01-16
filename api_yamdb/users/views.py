@@ -78,11 +78,11 @@ def registration(request):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    http_method_names = ['get', 'post', 'patch', 'delete']
     # так как метод PATCH является частью метода PUT, то запретить метод PUT
-    # и при этом ращрешить PATCH просто комбинируя миксины - невозможно.
+    # и при этом разрешить PATCH просто комбинируя миксины - невозможно.
     # В любом случае придется переопределять action-методы.
     # Самое прямое решение - явно прописать допустимые методы.
+    http_method_names = ['get', 'post', 'patch', 'delete']
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'

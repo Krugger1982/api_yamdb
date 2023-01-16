@@ -1,11 +1,6 @@
-import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from users.models import User
-
-
-def current_year():
-    return datetime.date.today().year
 
 
 class Category(models.Model):
@@ -45,10 +40,7 @@ class Title(models.Model):
         max_length=255,
         verbose_name='Название'
     )
-    year = models.IntegerField(
-        verbose_name='Год',
-        validators=[MaxValueValidator(current_year())],
-    )
+    year = models.PositiveSmallIntegerField(verbose_name='Год')
     description = models.TextField(
         null=True,
         blank=True,
