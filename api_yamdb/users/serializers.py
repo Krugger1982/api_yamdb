@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from .models import User
 
@@ -8,23 +9,39 @@ class UserCreationSerializer(serializers.ModelSerializer):
     username = serializers.RegexField(
         regex=r'^[\w.@+-]',
         max_length=150,
+        validators=[UniqueValidator(queryset=User.objects.all())]
     )
-    email = serializers.EmailField(max_length=150)
+    email = serializers.EmailField(
+        max_length=254,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email')
 
     def validate_username(self, value):
+        """Валидация и нормализация username
+        (приведение его к нижнему регистру)
+        """
         if value == 'me':
             raise serializers.ValidationError(
                 "Имя 'me' использовать как username запрещено!"
             )
-        return value
+        return value.lower()
+
+    def validate_email(self, value):
+        """функция нормализует значение поля, приводя его к нижнему регистру
+        Теперь поле email стало регистронезависимым """
+        return value.lower()
 
 
-class RegistrationSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
+class CheckTokenSerializer(serializers.ModelSerializer):
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]',
+        max_length=150,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
     confirmation_code = serializers.CharField(required=True)
 
     class Meta:
@@ -61,8 +78,19 @@ class UserSerializer(serializers.ModelSerializer):
             'url': {'lookup_field': 'username'}
         }
 
+    def validate_username(self, value):
+        """функция нормализует значение поля, приводя его к нижнему регистру.
+        """
+        return value.lower()
+
+    def validate_email(self, value):
+        """функция нормализует значение поля, приводя его к нижнему регистру
+        """
+        return value.lower()
+
 
 class ProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = (
@@ -74,3 +102,13 @@ class ProfileSerializer(serializers.ModelSerializer):
             'role',
         )
         read_only_fields = ('role',)
+
+    def validate_username(self, value):
+        """функция нормализует значение поля, приводя его к нижнему регистру.
+        """
+        return value.lower()
+
+    def validate_email(self, value):
+        """функция нормализует значение поля, приводя его к нижнему регистру
+        """
+        return value.lower()

@@ -1,19 +1,18 @@
 import hashlib
 from django.core.mail import send_mail
-from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import filters, permissions, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
 
 from api.pagination import CommonPagination
 from .models import User
-from .permissions import UserRoleIsAdmin, IsAdminOrProfileOwner
-from .serializers import (RegistrationSerializer, UserCreationSerializer,
+from .permissions import UserRoleIsAdmin
+from .serializers import (CheckTokenSerializer, UserCreationSerializer,
                           UserSerializer, ProfileSerializer)
 
 
@@ -42,18 +41,15 @@ def createuser(request):
     """
     username = request.data.get('username')
     email = request.data.get('email')
-    if not User.objects.filter(username=username, email=email).exists():
+    if not User.objects.filter(
+        username__iexact=username,
+        email__iexact=email
+    ).exists():
         # если пользователя с совпадением по ДВУМ полям не существует
         # то попытаемся его создать
         serializer = UserCreationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            user = User.objects.create(**serializer.validated_data)
-        except IntegrityError:
-            return Response(
-                'Такой пользователь или емэйл уже существуют',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        user = User.objects.create(**serializer.validated_data)
         response_data = serializer.validated_data
     else:
         # а если такой уже есть, то берем его из БД
@@ -68,7 +64,7 @@ def createuser(request):
 @csrf_exempt
 @permission_classes([permissions.AllowAny])
 def registration(request):
-    serializer = RegistrationSerializer(data=request.data)
+    serializer = CheckTokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     user = get_object_or_404(
         User,
@@ -81,30 +77,12 @@ def registration(request):
     )
 
 
-class ProfileView(APIView):
-    @permission_classes([IsAdminOrProfileOwner])
-    def get(self, request):
-        user = self.request.user
-        serializer = ProfileSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @permission_classes([IsAdminOrProfileOwner])
-    def patch(self, request):
-        user = self.request.user
-        serializer = ProfileSerializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            serializer.validated_data,
-            status=status.HTTP_200_OK
-        )
-
-    def put(self, request, *args, **kwargs):
-        response = {'message': 'Метод PUT в данном эндпойнте не разрешен!'}
-        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
 class UsersViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    # так как метод PATCH является частью метода PUT, то запретить метод PUT
+    # и при этом ращрешить PATCH просто комбинируя миксины - невозможно.
+    # В любом случае придется переопределять action-методы.
+    # Самое прямое решение - явно прописать допустимые методы.
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
@@ -113,17 +91,18 @@ class UsersViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter, )
     search_fields = ('username',)
 
-    def update(self, request, username=None):
-        response = {'message': 'Метод PUT в данном эндпойнте не разрешен!'}
-        return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, username=None):
-        user = get_object_or_404(User, username=self.kwargs.get('username'))
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(
-                serializer.validated_data, status=status.HTTP_200_OK
+    @action(detail=False, methods=['GET', 'PATCH'],
+            permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        user = self.request.user
+        if request.method == 'PATCH':
+            serializer = ProfileSerializer(
+                user, data=request.data, partial=True
             )
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            response_data = serializer.validated_data
+        else:
+            serializer = ProfileSerializer(user)
+            response_data = serializer.data
+        return Response(response_data, status=status.HTTP_200_OK)

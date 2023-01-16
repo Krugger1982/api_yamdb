@@ -9,11 +9,3 @@ class UserRoleIsAdmin(permissions.BasePermission):
             and request.user.role == 'admin'
             or request.user.is_superuser
         )
-
-
-class IsAdminOrProfileOwner(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return bool(
-            obj == request.user
-            or request.user.role == 'admin'
-            or request.user.is_stuff)
