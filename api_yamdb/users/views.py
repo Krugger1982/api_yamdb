@@ -58,6 +58,7 @@ def createuser(request):
         response_data = request.data
     # создаем, сохраняем и отправляем пользователю код подтверждения
     generate_creation_code_and_mail(user)
+    user.save()
     return Response(response_data, status=status.HTTP_200_OK)
 
 

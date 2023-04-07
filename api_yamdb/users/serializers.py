@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -10,7 +12,7 @@ def username_validation(value):
         (приведение его к нижнему регистру)
     """
     value = value.lower()
-    if value == 'me':
+    if value == 'me' or re.match(r'^[\w.@+-]', value) is None:
         raise serializers.ValidationError(
             "Имя 'me' (а также 'Ме', 'МЕ' или 'mE') использовать запрещено!"
         )
@@ -49,7 +51,6 @@ class CheckTokenSerializer(serializers.ModelSerializer):
     username = serializers.RegexField(
         regex=r'^[\w.@+-]',
         max_length=150,
-        validators=[UniqueValidator(queryset=User.objects.all())]
     )
     confirmation_code = serializers.CharField(required=True)
 
